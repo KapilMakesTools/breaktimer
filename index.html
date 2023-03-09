@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Clock and Alarm</title>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<style>
+		h1 {
+			text-align: center;
+		}
+
+		#clock {
+			font-size: 36px;
+			text-align: center;
+			margin-top: 30px;
+			margin-bottom: 30px;
+		}
+
+		table {
+			margin: auto;
+			border-collapse: collapse;
+			margin-top: 30px;
+			margin-bottom: 30px;
+		}
+
+		th, td {
+			border: 1px solid black;
+			padding: 10px;
+			text-align: center;
+		}
+	</style>
+</head>
+<body>
+	<h1>Clock and Alarm</h1>
+
+	<div id="clock"></div>
+
+	<table>
+		<tr>
+			<th>Break Start Time</th>
+			<th>Break End Time</th>
+		</tr>
+		<tr>
+			<td>Login</td>
+			<td>12:30 PM</td>
+		</tr>
+		<tr>
+			<td>Lunch Break Start</td>
+			<td>01:20 PM</td>
+		</tr>
+		<tr>
+			<td>Lunch Break End</td>
+			<td>02:00 PM</td>
+		</tr>
+		<tr>
+			<td>Rest Break Start</td>
+			<td>03:00 PM</td>
+		</tr>
+		<tr>
+			<td>Rest Break End</td>
+			<td>03:20 PM</td>
+		</tr>
+		<tr>
+			<td>Tea Break 1 Start</td>
+			<td>04:40 PM</td>
+		</tr>
+		<tr>
+			<td>Tea Break 1 End</td>
+			<td>05:00 PM</td>
+		</tr>
+		<tr>
+			<td>Tea Break 2 Start</td>
+			<td>07:00 PM</td>
+		</tr>
+		<tr>
+			<td>Tea Break 2 End</td>
+			<td>07:20 PM</td>
+		</tr>
+		<tr>
+			<td>Rest Break 2 Start</td>
+			<td>08:00 PM</td>
+		</tr>
+		<tr>
+			<td>Rest Break 2 End</td>
+			<td>08:20 PM</td>
+		</tr>
+		<tr>
+			<td>Logout</td>
+			<td>9:30 PM</td>
+		</tr>
+	</table>
+
+	<audio id="beep" src="beep.mp3"></audio>
+  <script>
+// Get the clock element
+const clockElement = document.getElementById("clock");
+
+// Define the break times
+const breakTimes = [
+  { name: "Login", time: "09:58 AM" },
+  { name: "Lunch Break Start", time: "01:20 PM" },
+  { name: "Lunch Break End", time: "02:00 PM" },
+  { name: "Rest Break Start", time: "03:00 PM" },
+  { name: "Rest Break End", time: "03:20 PM" },
+  { name: "Tea Break 1 Start", time: "04:40 PM" },
+  { name: "Tea Break 1 End", time: "05:00 PM" },
+  { name: "Tea Break 2 Start", time: "07:00 PM" },
+  { name: "Tea Break 2 End", time: "07:20 PM" },
+  { name: "Rest Break 2 Start", time: "08:00 PM" },
+  { name: "Rest Break 2 End", time: "08:20 PM" },
+  { name: "Logout", time: "09:30 PM" },
+];
+
+// Define a function to format the time
+function formatTime(date) {
+  const hours = date.getHours();
+  const minutes = date.getMinutes();
+  const seconds = date.getSeconds();
+  const meridiem = hours >= 12 ? "PM" : "AM";
+  const formattedHours = hours % 12 || 12;
+  return `${formattedHours.toString().padStart(2, "0")}:${minutes
+    .toString()
+    .padStart(2, "0")}:${seconds.toString().padStart(2, "0")} ${meridiem}`;
+}
+
+// Define a function to format the date
+function formatDate(date) {
+  const options = { weekday: "long", year: "numeric", month: "long", day: "numeric" };
+  return date.toLocaleDateString("en-US", options);
+}
+
+// Update the clock and break times every second
+let beepTimeoutId = null;
+setInterval(() => {
+  const now = new Date();
+  const time = formatTime(now);
+  const date = formatDate(now);
+  clockElement.innerHTML = `${time}<br>${date}`;
+  breakTimes.forEach((breakTime, index) => {
+    const breakDate = new Date(`${date} ${breakTime.time}`);
+    if (now >= breakDate && now < breakDate.getTime() + 1000) {
+      const nextBreak = breakTimes[index + 1];
+      const breakName = nextBreak ? nextBreak.name : "End of day";
+      const breakEnd = nextBreak ? nextBreak.time : "N/A";
+      alert(`${breakTime.name} ends at ${breakEnd}. Take a break before ${breakName}.`);
+      const beepSound = document.getElementById("beep");
+      if (beepSound) {
+        beepSound.play();
+        beepTimeoutId = setTimeout(() => {
+          beepSound.pause();
+          beepSound.currentTime = 0;
+        }, 6000);
+      } else {
+        alert("Break time! Please take a break.");
+      }
+    } else if (beepTimeoutId !== null) {
+      clearTimeout(beepTimeoutId);
+      const beepSound = document.getElementById("beep");
+      if (beepSound) {
+        beepSound.pause();
+        beepSound.currentTime = 0;
+      }
+      beepTimeoutId = null;
+    }
+  });
+}, 1000);
+
+
+  </script>
+</body>
+</html>
